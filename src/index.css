@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@plugin "daisyui" { themes: getpic --default, dark --prefersdark; }
+@plugin "daisyui/theme" {
+  name: "getpic"; default: true; color-scheme: light;
+  --color-base-100: #ffffff; --color-base-200: #f5f6fa; --color-base-300: #e5e7ef;
+  --color-base-content: #1f2433;
+  /* [แก้ไข] สีธีมหลักและสีเน้น */
+  --color-primary: #4f46e5; --color-primary-content: #ffffff;
+  --color-secondary: #ec4899; --color-secondary-content: #ffffff;
+  --color-accent: #14b8a6; --color-accent-content: #ffffff;
+  --color-neutral: #2a2e3d; --color-neutral-content: #ffffff;
+  --color-success: #16a34a; --color-warning: #f59e0b; --color-error: #dc2626;
+  /* [แก้ไข] รัศมีความโค้งมนของกล่องและการ์ด (box) และช่องกรอกข้อมูล (field) */
+  --radius-box: 1rem; --radius-field: 0.5rem;
+}
+
+/* [แก้ไข] แบบอักษรหลักของระบบ */
+body { font-family: "Prompt", "Inter", sans-serif; }
