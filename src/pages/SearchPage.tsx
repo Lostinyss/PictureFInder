@@ -160,7 +160,7 @@ export function SearchPage() {
 
       {/* 5. เนื้อหาผลลัพธ์ 4 สถานะ */}
       {isLoading ? (
-        <SkeletonGrid count={20} />
+        <SkeletonGrid count={12} />
       ) : isError ? (
         <ErrorState error={error} onRetry={refetch} />
       ) : data?.results.length === 0 ? (

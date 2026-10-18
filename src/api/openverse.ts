@@ -13,6 +13,7 @@ export async function searchImages(
 
   url.searchParams.set("q", params.q);
   url.searchParams.set("page", String(params.page));
+  url.searchParams.set("page_size", "12");
 
   if (params.license_type) {
     url.searchParams.set("license_type", params.license_type);

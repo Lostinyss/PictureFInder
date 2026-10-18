@@ -91,6 +91,9 @@ export function ImageDetailPage() {
               <img
                 src={image.url}
                 alt={image.title ?? "รูปภาพขนาดใหญ่"}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
                 className="w-full max-h-[70vh] object-contain bg-base-300 rounded-box"
               />
             </div>

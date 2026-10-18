@@ -52,6 +52,7 @@ export function ImageCard({
           src={image.thumbnail}
           alt={displayTitle}
           loading="lazy"
+          decoding="async"
           onError={() => setHasError(true)}
           className="aspect-square w-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
