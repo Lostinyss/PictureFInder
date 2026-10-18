@@ -22,6 +22,7 @@ export function ImageDetailPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImageForModal, setSelectedImageForModal] = useState<SavedImage | null>(null);
+  const [loadedImageUrl, setLoadedImageUrl] = useState<string | null>(null);
 
   const { data: image, isLoading, isError, error, refetch } = useImageDetail(id);
   const isImageSaved = useBoardStore((s) => s.isImageSaved);
@@ -87,14 +88,25 @@ export function ImageDetailPage() {
           {/* ข้อมูลรูปภาพหลัก */}
           <div className="grid lg:grid-cols-5 gap-8">
             {/* ฝั่งซ้าย (3 คอลัมน์): รูปภาพขนาดใหญ่ */}
-            <div className="lg:col-span-3 flex items-center justify-center bg-base-300 rounded-box overflow-hidden shadow-inner">
+            <div className="relative min-h-96 lg:col-span-3 flex items-center justify-center bg-base-300 rounded-box overflow-hidden shadow-inner">
+              {loadedImageUrl !== image.url && (
+                <img
+                  src={image.thumbnail}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-contain"
+                />
+              )}
               <img
                 src={image.url}
                 alt={image.title ?? "รูปภาพขนาดใหญ่"}
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                className="w-full max-h-[70vh] object-contain bg-base-300 rounded-box"
+                onLoad={() => setLoadedImageUrl(image.url)}
+                className={`relative w-full max-h-[70vh] object-contain bg-base-300 rounded-box ${
+                  loadedImageUrl === image.url ? "opacity-100" : "opacity-0"
+                }`}
               />
             </div>
 

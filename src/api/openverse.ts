@@ -6,8 +6,25 @@ import type {
 } from "../types/image";
 import { ApiError } from "../types/image";
 
+async function requestOpenverse<T>(url: URL, signal?: AbortSignal): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(url, { signal });
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    throw new ApiError(0, "Unable to connect to Openverse");
+  }
+
+  if (!response.ok) {
+    throw new ApiError(response.status, "Openverse API request failed");
+  }
+
+  return response.json() as Promise<T>;
+}
+
 export async function searchImages(
-  params: SearchParams
+  params: SearchParams,
+  signal?: AbortSignal
 ): Promise<SearchResponse> {
   const url = new URL("https://api.openverse.org/v1/images/");
 
@@ -31,29 +48,12 @@ export async function searchImages(
     url.searchParams.set("size", params.size);
   }
 
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new ApiError(response.status, "Openverse API request failed");
-  }
-
-  return response.json();
+  return requestOpenverse<SearchResponse>(url, signal);
 }
 
+export async function getImage(id: string, signal?: AbortSignal): Promise<ImageSummary> {
+  const url = new URL(`https://api.openverse.org/v1/images/${encodeURIComponent(id)}/`);
 
-
-export async function getImage(id: string): Promise<ImageSummary> {
-  const url = `https://api.openverse.org/v1/images/${encodeURIComponent(id)}/`;
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new ApiError(
-      response.status,
-      "Failed to fetch image details"
-    );
-  }
-
-  return response.json();
+  return requestOpenverse<ImageSummary>(url, signal);
 }
 
