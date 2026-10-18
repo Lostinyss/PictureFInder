@@ -1,17 +1,14 @@
-// ImageDetailPage.tsx: หน้ารายละเอียดรูปภาพ แสดงภาพขนาดใหญ่ ข้อมูลลิขสิทธิ์ สิทธิ์การใช้งาน กล่องเครดิต และรูปภาพที่คล้ายกัน
+// ImageDetailPage.tsx: หน้ารายละเอียดรูปภาพ แสดงภาพขนาดใหญ่ ข้อมูลลิขสิทธิ์ สิทธิ์การใช้งาน และกล่องเครดิต
 // Props: ไม่มี (อ่าน id จาก URL useParams)
 
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useImageDetail } from "../hooks/useImageDetail";
-import { useRelatedImages } from "../hooks/useRelatedImages";
 import { useBoardStore } from "../store/useBoardStore";
 import { buildCredit } from "../utils/credit";
 import { LICENSES } from "../utils/license";
 import { LicenseBadge } from "../components/image/LicenseBadge";
 import { LicensePermissions } from "../components/image/LicensePermissions";
-import { ImageGrid } from "../components/image/ImageGrid";
-import { SkeletonGrid } from "../components/feedback/SkeletonGrid";
 import { ErrorState } from "../components/feedback/ErrorState";
 import { EmptyState } from "../components/feedback/EmptyState";
 import { Toast, useToast } from "../components/feedback/Toast";
@@ -27,20 +24,12 @@ export function ImageDetailPage() {
   const [selectedImageForModal, setSelectedImageForModal] = useState<SavedImage | null>(null);
 
   const { data: image, isLoading, isError, error, refetch } = useImageDetail(id);
-  const {
-    data: relatedData,
-    isLoading: isRelatedLoading,
-    isError: isRelatedError,
-    error: relatedError,
-    refetch: refetchRelated,
-  } = useRelatedImages(id);
-
   const isImageSaved = useBoardStore((s) => s.isImageSaved);
 
   const handleCopyCredit = async () => {
     if (!image) return;
     const saved = toSavedImage(image);
-    const text = buildCredit(saved, "text");
+    const text = buildCredit(saved);
     try {
       await navigator.clipboard.writeText(text);
       showToast("คัดลอกแล้ว ✓");
@@ -171,7 +160,7 @@ export function ImageDetailPage() {
                     ข้อความให้เครดิต (Text):
                   </span>
                   <div className="bg-base-200 p-3 rounded-box font-mono text-sm break-words flex flex-col gap-2">
-                    <span className="text-xs">{buildCredit(toSavedImage(image), "text")}</span>
+                    <span className="text-xs">{buildCredit(toSavedImage(image))}</span>
                     <button
                       type="button"
                       onClick={handleCopyCredit}
@@ -219,32 +208,6 @@ export function ImageDetailPage() {
             </div>
           </div>
 
-          {/* ส่วน "รูปที่คล้ายกัน" */}
-          <section className="pt-8 border-t border-base-300">
-            {/* [แก้ไข] หัวข้อของส่วนรูปที่เกี่ยวข้อง */}
-            <h2 className="text-xl font-semibold text-base-content mb-4">
-              รูปที่คล้ายกัน
-            </h2>
-
-            {isRelatedLoading ? (
-              <SkeletonGrid count={10} />
-            ) : isRelatedError ? (
-              <ErrorState error={relatedError} onRetry={refetchRelated} />
-            ) : relatedData?.results.length === 0 ? (
-              <EmptyState
-                icon="📁"
-                title="ไม่มีรูปภาพที่คล้ายกัน"
-                description="ไม่พบรูปภาพอื่นที่เกี่ยวข้องในขณะนี้"
-              />
-            ) : (
-              <ImageGrid
-                images={relatedData?.results ?? []}
-                variant="search"
-                isSaved={isImageSaved}
-                onAction={handleOpenSaveModal}
-              />
-            )}
-          </section>
         </>
       ) : null}
 

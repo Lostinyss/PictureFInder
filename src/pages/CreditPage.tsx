@@ -1,9 +1,8 @@
-// CreditPage.tsx: หน้าสร้างข้อความให้เครดิตผู้สร้างสรรค์อัตโนมัติ รองรับรูปแบบ Plain Text, HTML และ Markdown
+// CreditPage.tsx: หน้าสร้างข้อความให้เครดิตผู้สร้างสรรค์อัตโนมัติในรูปแบบข้อความธรรมดา
 // Props: ไม่มี (อ่านค่าบอร์ดจาก ?board=<id> และ useBoardStore)
 
-import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import type { CreditFormat, SavedImage } from "../types/image";
+import type { SavedImage } from "../types/image";
 import { useBoardStore } from "../store/useBoardStore";
 import { buildCredit } from "../utils/credit";
 import { LICENSES } from "../utils/license";
@@ -12,8 +11,6 @@ import { Toast, useToast } from "../components/feedback/Toast";
 
 export function CreditPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  // [แก้ไข] รูปแบบเครดิตเริ่มต้น ("text" | "html" | "markdown")
-  const [format, setFormat] = useState<CreditFormat>("text");
   const { message: toastMessage, show: showToast } = useToast();
 
   const boards = useBoardStore((s) => s.boards);
@@ -36,14 +33,14 @@ export function CreditPage() {
   };
 
   const handleCopySingle = (image: SavedImage) => {
-    const text = buildCredit(image, format);
+    const text = buildCredit(image);
     copyToClipboard(text, "คัดลอกเครดิตรูปนี้แล้ว ✓");
   };
 
   const handleCopyAll = () => {
     if (!currentBoard || currentBoard.images.length === 0) return;
     const allCredits = currentBoard.images
-      .map((img) => buildCredit(img, format))
+      .map((img) => buildCredit(img))
       .join("\n");
     copyToClipboard(allCredits, "คัดลอกเครดิตทั้งหมดแล้ว ✓");
   };
@@ -75,7 +72,7 @@ export function CreditPage() {
         />
       ) : (
         <>
-          {/* แถวเครื่องมือควบคุม: เลือกบอร์ด, เลือกรูปแบบ tab, ปุ่มคัดลอกทั้งหมด */}
+          {/* แถวเครื่องมือควบคุม: เลือกบอร์ดและปุ่มคัดลอกทั้งหมด */}
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between bg-base-100 p-4 rounded-box shadow-sm">
             <div className="flex flex-col sm:flex-row gap-3 sm:items-center flex-1">
               {/* ตัวเลือกเลือกบอร์ด */}
@@ -96,38 +93,6 @@ export function CreditPage() {
                 </select>
               </div>
 
-              {/* แท็บเลือกรูปแบบเครดิต (DaisyUI v5 ใช้ tabs-box) */}
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-xs text-base-content/70">รูปแบบเครดิต</span>
-                </label>
-                <div role="tablist" className="tabs tabs-box">
-                  <button
-                    type="button"
-                    role="tab"
-                    className={`tab ${format === "text" ? "tab-active" : ""}`}
-                    onClick={() => setFormat("text")}
-                  >
-                    ข้อความธรรมดา
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    className={`tab ${format === "html" ? "tab-active" : ""}`}
-                    onClick={() => setFormat("html")}
-                  >
-                    HTML
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    className={`tab ${format === "markdown" ? "tab-active" : ""}`}
-                    onClick={() => setFormat("markdown")}
-                  >
-                    Markdown
-                  </button>
-                </div>
-              </div>
             </div>
 
             {/* ปุ่มคัดลอกทั้งหมด */}
@@ -158,7 +123,7 @@ export function CreditPage() {
           ) : (
             <div className="space-y-3">
               {currentBoard.images.map((image) => {
-                const creditText = buildCredit(image, format);
+                const creditText = buildCredit(image);
                 const licenseInfo = LICENSES[image.license];
                 const isNoAttributionRequired = licenseInfo && !licenseInfo.attribution;
 

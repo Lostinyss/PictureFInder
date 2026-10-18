@@ -60,7 +60,7 @@ export interface Board {
   images: SavedImage[];
 }
 
-export type CreditFormat = "text" | "html" | "markdown";
+export type CreditFormat = "text";
 
 /** รูปร่างผลลัพธ์ที่หน้าเว็บคาดหวังจาก hook (เลียนแบบ useQuery) */
 export interface QueryResult<T> {

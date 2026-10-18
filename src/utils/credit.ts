@@ -1,6 +1,10 @@
-// TODO(ผู้พัฒนา): เขียน logic จริงเอง ไฟล์นี้เป็น stub ชั่วคราว
-import type { CreditFormat, SavedImage } from "../types/image";
+import type { SavedImage } from "../types/image";
+import { LICENSES } from "./license";
 
-export function buildCredit(image: SavedImage, format: CreditFormat): string {
-  return `[${format}] "${image.title ?? "Untitled"}" by ${image.creator ?? "Unknown"} (TODO)`;
+export function buildCredit(image: SavedImage): string {
+  const title = image.title ?? "Untitled";
+  const creator = image.creator ?? "Unknown";
+  const license = LICENSES[image.license]?.label ?? image.license;
+
+  return `"${title}" by ${creator}, licensed under ${license}: ${image.foreign_landing_url}`;
 }

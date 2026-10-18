@@ -1,17 +1,49 @@
-// TODO(ผู้พัฒนา): เขียน logic จริงเอง ไฟล์นี้เป็น stub ชั่วคราว
-import type { ImageSummary, QueryResult } from "../types/image";
+import { useCallback, useEffect, useState } from "react";
+import type {
+  ImageSummary,
+  QueryResult,
+} from "../types/image";
 import { ApiError } from "../types/image";
-import { MOCK_IMAGES, MOCK_STATE } from "../mocks/images";
+import { getImage } from "../api/openverse";
 
-export function useImageDetail(id: string): QueryResult<ImageSummary> {
-  const base = { isFetching: false, refetch: () => {} };
-  if (MOCK_STATE === "loading") return { ...base, data: undefined, isLoading: true, isError: false, error: null };
-  if (MOCK_STATE === "error")   return { ...base, data: undefined, isLoading: false, isError: true, error: new ApiError(500, "server error") };
+export function useImageDetail(
+  id: string
+): QueryResult<ImageSummary> {
+  const [data, setData] = useState<ImageSummary>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [error, setError] = useState<ApiError | null>(null);
 
-  const image = MOCK_IMAGES.find((img) => img.id === id);
-  if (!image || MOCK_STATE === "empty") {
-    return { ...base, data: undefined, isLoading: false, isError: true, error: new ApiError(404, "not found") };
-  }
+  const fetchImage = useCallback(async () => {
+    setIsFetching(true);
+    setError(null);
 
-  return { ...base, data: image, isLoading: false, isError: false, error: null };
+    try {
+      const result = await getImage(id);
+      setData(result);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err
+          : new ApiError(500, "Failed to fetch image")
+      );
+    } finally {
+      setIsLoading(false);
+      setIsFetching(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    void fetchImage();
+  }, [fetchImage]);
+
+  return {
+    data,
+    isLoading,
+    isFetching,
+    isError: error !== null,
+    error,
+    refetch: fetchImage,
+  };
 }
